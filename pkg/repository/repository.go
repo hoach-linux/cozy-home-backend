@@ -8,9 +8,10 @@ import (
 
 type Authorization interface {
 	CreateUser(user gobackend.User) (int, error)
-	GetUser(username, password string) (gobackend.User, error )
+	GetUser(username, password string) (gobackend.User, error)
 }
 type TodoList interface {
+	Create(userId int, list gobackend.TodoList) (int, error)
 }
 type TodoItem interface {
 }
