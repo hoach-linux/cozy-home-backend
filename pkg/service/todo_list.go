@@ -21,3 +21,6 @@ func (s *TodoListService) Create(userId int, list gobackend.TodoList) (int, erro
 func (s *TodoListService) GetAll(userId int) ([]gobackend.TodoList, error) {
 	return s.repo.GetAll(userId)
 }
+func (s *TodoListService) GetById(userId, listId int) (gobackend.TodoList, error) {
+	return s.repo.GetById(userId, listId)
+}

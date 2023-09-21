@@ -59,3 +59,11 @@ func (r *TodoListPostgres) GetAll(userId int) ([]gobackend.TodoList, error) {
 
 	return lists, err
 }
+func (r *TodoListPostgres) GetById(userId, listId int) (gobackend.TodoList, error) {
+	var list gobackend.TodoList
+
+	getListQuery := fmt.Sprintf("SELECT tl.id, tl.title, tl.description FROM %s tl INNER JOIN %s ul on tl.id = ul.list_id WHERE ul.user_id = $1 AND ul.list_id = $2", todoListsTable, usersListsTable)
+	err := r.db.Get(&list, getListQuery, userId, listId)
+
+	return list, err
+}
