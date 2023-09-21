@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 
@@ -38,4 +39,24 @@ func (h *Handler) UserIdentity(c *gin.Context) {
 	}
 
 	c.Set(userCtx, userId)
+}
+
+func getUserId(c *gin.Context) (int, error) {
+	id, ok := c.Get(userCtx)
+
+	if !ok {
+		newErrorResponse(c, http.StatusBadRequest, "id is not defined")
+
+		return 0, errors.New("user id is not defined")
+	}
+
+	idInt, ok := id.(int)
+
+	if !ok {
+		newErrorResponse(c, http.StatusBadRequest, "id is not defined")
+
+		return 0, errors.New("user id is not defined")
+	}
+
+	return idInt, nil
 }

@@ -8,12 +8,14 @@ import (
 	gobackend "github.com/hoach-linux/go-backend"
 )
 
+type getAllListsResponse struct {
+	Data []gobackend.TodoList `json:"data"`
+}
+
 func (h *Handler) createList(c *gin.Context) {
-	id, ok := c.Get(userCtx)
+	userId, err := getUserId(c)
 
-	if !ok {
-		newErrorResponse(c, http.StatusBadRequest, "id is not defined")
-
+	if err != nil {
 		return
 	}
 
@@ -24,14 +26,35 @@ func (h *Handler) createList(c *gin.Context) {
 
 		return
 	}
-	
 
-}
-func (h *Handler) getLists(c *gin.Context) {
-	id, _ := c.Get(userCtx)
+	id, err := h.service.TodoList.Create(userId, input)
+
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+
+		return
+	}
 
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"id": id,
+	})
+}
+func (h *Handler) getLists(c *gin.Context) {
+	userId, err := getUserId(c)
+
+	if err != nil {
+		return
+	}
+
+	lists, err := h.service.TodoList.GetAll(userId)
+
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, getAllListsResponse{
+		Data: lists,
 	})
 }
 func (h *Handler) getListById(c *gin.Context) {
