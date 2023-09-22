@@ -14,6 +14,7 @@ type TodoList interface {
 	Create(userId int, list gobackend.TodoList) (int, error)
 	GetAll(userId int) ([]gobackend.TodoList, error)
 	GetById(userId, listId int) (gobackend.TodoList, error)
+	Delete(userId, listId int) (error)
 }
 type TodoItem interface {
 }

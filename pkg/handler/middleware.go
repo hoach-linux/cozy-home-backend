@@ -17,14 +17,14 @@ func (h *Handler) UserIdentity(c *gin.Context) {
 	header := c.GetHeader(authorizationHeader)
 
 	if header == "" {
-		newErrorResponse(c, http.StatusUnauthorized, "empty auth header")
+		newErrorResponse(c, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
 
 	headerParts := strings.Split(header, " ")
 
 	if len(headerParts) != 2 {
-		newErrorResponse(c, http.StatusUnauthorized, "token is not valid ")
+		newErrorResponse(c, http.StatusUnauthorized, "Unauthorized")
 
 		return
 	}
