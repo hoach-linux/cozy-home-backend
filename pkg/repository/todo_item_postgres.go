@@ -58,3 +58,17 @@ func (r *TodoItemPostgres) GetAll(listId int) ([]gobackend.TodoItem, error) {
 
 	return items, err
 }
+func (r *TodoItemPostgres) GetById(listId, itemId int) (gobackend.TodoItem, error) {
+	var item gobackend.TodoItem
+
+	getItemQuery := fmt.Sprintf("SELECT tl.id, tl.title, tl.description, tl.done FROM %s tl INNER JOIN %s ul on tl.id = ul.item_id WHERE ul.list_id = $1 AND ul.item_id = $2", todoItemsTable, listsItemsTable)
+	err := r.db.Get(&item, getItemQuery, listId, itemId)
+
+	return item, err
+}
+func (r *TodoItemPostgres) Delete(listId, itemId int) error {
+	query := fmt.Sprintf("DELETE FROM %s tl USING %s ul WHERE tl.id = ul.item_id AND ul.list_id = $1 AND ul.item_id = $2", todoItemsTable, listsItemsTable)
+	_, err := r.db.Exec(query, listId, itemId)
+
+	return err
+}

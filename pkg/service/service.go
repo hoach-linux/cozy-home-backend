@@ -20,6 +20,8 @@ type TodoList interface {
 type TodoItem interface {
 	Create(item gobackend.CrudTodoItem) (int, error)
 	GetAll(listId int) ([]gobackend.TodoItem, error)
+	GetById(listId, itemId int) (gobackend.TodoItem, error)
+	Delete(listId, itemId int) error
 }
 type Service struct {
 	Authorization

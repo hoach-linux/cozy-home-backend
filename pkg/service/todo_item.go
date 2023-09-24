@@ -21,3 +21,9 @@ func (s *TodoItemService) Create(item gobackend.CrudTodoItem) (int, error) {
 func (s *TodoItemService) GetAll(listId int) ([]gobackend.TodoItem, error) {
 	return s.repo.GetAll(listId)
 }
+func (s *TodoItemService) GetById(listId, itemId int) (gobackend.TodoItem, error) {
+	return s.repo.GetById(listId, itemId)
+}
+func (s *TodoItemService) Delete(listId, itemId int) error {
+	return s.repo.Delete(listId, itemId)
+}

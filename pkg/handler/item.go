@@ -13,7 +13,7 @@ type getAllItemsResponse struct {
 }
 
 func (h *Handler) createItem(c *gin.Context) {
-	_, err := getUserId(c)
+	userId, err := getUserId(c)
 
 	if err != nil {
 		return
@@ -23,6 +23,20 @@ func (h *Handler) createItem(c *gin.Context) {
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 
+		return
+	}
+
+	inputListId, err := strconv.Atoi(input.ListId)
+
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	_, err = h.service.TodoList.GetById(userId, inputListId)
+
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "Permission denied")
 		return
 	}
 
@@ -39,7 +53,7 @@ func (h *Handler) createItem(c *gin.Context) {
 	})
 }
 func (h *Handler) getItems(c *gin.Context) {
-	_, err := getUserId(c)
+	userId, err := getUserId(c)
 
 	if err != nil {
 		return
@@ -48,7 +62,14 @@ func (h *Handler) getItems(c *gin.Context) {
 	listId, err := strconv.Atoi(c.Query("list_id"))
 
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "query param is valid")
+		newErrorResponse(c, http.StatusBadRequest, "query param is not valid")
+		return
+	}
+
+	_, err = h.service.TodoList.GetById(userId, listId)
+
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "Permission denied")
 		return
 	}
 
@@ -64,11 +85,78 @@ func (h *Handler) getItems(c *gin.Context) {
 	})
 }
 func (h *Handler) getItemById(c *gin.Context) {
+	userId, err := getUserId(c)
 
+	if err != nil {
+		return
+	}
+
+	itemId, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "id is not valid")
+		return
+	}
+
+	listId, err := strconv.Atoi(c.Query("list_id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "query param is not valid")
+		return
+	}
+
+	_, err = h.service.TodoList.GetById(userId, listId)
+
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "Permission denied")
+		return
+	}
+
+	item, err := h.service.TodoItem.GetById(listId, itemId)
+
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, item)
 }
 func (h *Handler) updateItem(c *gin.Context) {
 
 }
 func (h *Handler) deleteItem(c *gin.Context) {
+	userId, err := getUserId(c)
 
+	if err != nil {
+		return
+	}
+
+	itemId, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "id is not valid")
+		return
+	}
+
+	listId, err := strconv.Atoi(c.Query("list_id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "query param is not valid")
+		return
+	}
+
+	_, err = h.service.TodoList.GetById(userId, listId)
+
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "Permission denied")
+		return
+	}
+
+	err = h.service.TodoItem.Delete(listId, itemId)
+
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, statusResponse{
+		Status: "ok",
+	})
 }
