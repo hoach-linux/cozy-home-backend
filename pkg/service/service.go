@@ -18,6 +18,8 @@ type TodoList interface {
 	Update(userId, listId int, input gobackend.UpdateListInput) error
 }
 type TodoItem interface {
+	Create(item gobackend.CrudTodoItem) (int, error)
+	GetAll(listId int) ([]gobackend.TodoItem, error)
 }
 type Service struct {
 	Authorization
@@ -29,5 +31,6 @@ func NewService(repos *repository.Repository) *Service {
 	return &Service{
 		Authorization: newAuthService(repos.Authorization),
 		TodoList:      NewTodoListService(repos.TodoList),
+		TodoItem:      NewItemService(repos.TodoItem),
 	}
 }

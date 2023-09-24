@@ -21,7 +21,6 @@ func (h *Handler) createList(c *gin.Context) {
 	}
 
 	var input gobackend.TodoList
-
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 

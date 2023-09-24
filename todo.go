@@ -14,10 +14,10 @@ type UserList struct {
 	ListId int
 }
 type TodoItem struct {
-	Id          int    `json:"id"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Done        bool   `json:"done"`
+	Id          int    `json:"id" db:"id"`
+	Title       string `json:"title" db:"title" binding:"required"`
+	Description string `json:"description" db:"description"`
+	Done        bool   `json:"done" db:"done"`
 }
 type ListItem struct {
 	Id     int
@@ -27,6 +27,10 @@ type ListItem struct {
 type UpdateListInput struct {
 	Title       *string `json:"title"`
 	Description *string `json:"description"`
+}
+type CrudTodoItem struct {
+	TodoItem
+	ListId string `json:"list_id" data:"list_id" binding:"required"`
 }
 
 func (i UpdateListInput) Validate() error {

@@ -18,6 +18,8 @@ type TodoList interface {
 	Update(userId, listId int, input gobackend.UpdateListInput) error
 }
 type TodoItem interface {
+	Create(item gobackend.CrudTodoItem) (int, error)
+	GetAll(listId int) ([]gobackend.TodoItem, error)
 }
 type Repository struct {
 	Authorization
@@ -29,5 +31,6 @@ func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
 		Authorization: newAuthPostgres(db),
 		TodoList:      NewTodoListProgres(db),
+		TodoItem: NewItemService(db),
 	}
 }
