@@ -28,6 +28,11 @@ type UpdateListInput struct {
 	Title       *string `json:"title"`
 	Description *string `json:"description"`
 }
+type UpdateItemInput struct {
+	Title       *string `json:"title"`
+	Description *string `json:"description"`
+	Done        *string `json:"done"`
+}
 type CrudTodoItem struct {
 	TodoItem
 	ListId string `json:"list_id" data:"list_id" binding:"required"`
@@ -35,6 +40,13 @@ type CrudTodoItem struct {
 
 func (i UpdateListInput) Validate() error {
 	if i.Title == nil && i.Description == nil {
+		return errors.New("Inputs was not change")
+	}
+
+	return nil
+}
+func (i UpdateItemInput) Validate() error {
+	if i.Title == nil && i.Description == nil && i.Done == nil {
 		return errors.New("Inputs was not change")
 	}
 

@@ -2,9 +2,11 @@ package repository
 
 import (
 	"fmt"
+	"strings"
 
 	gobackend "github.com/hoach-linux/go-backend"
 	"github.com/jmoiron/sqlx"
+	"github.com/sirupsen/logrus"
 )
 
 type TodoItemPostgres struct {
@@ -69,6 +71,39 @@ func (r *TodoItemPostgres) GetById(listId, itemId int) (gobackend.TodoItem, erro
 func (r *TodoItemPostgres) Delete(listId, itemId int) error {
 	query := fmt.Sprintf("DELETE FROM %s tl USING %s ul WHERE tl.id = ul.item_id AND ul.list_id = $1 AND ul.item_id = $2", todoItemsTable, listsItemsTable)
 	_, err := r.db.Exec(query, listId, itemId)
+
+	return err
+}
+func (r *TodoItemPostgres) Update(listId, itemId int, input gobackend.UpdateItemInput) error {
+	setValues := make([]string, 0)
+	args := make([]interface{}, 0)
+	argId := 1
+
+	if input.Title != nil {
+		setValues = append(setValues, fmt.Sprintf("title=$%d", argId))
+		args = append(args, *input.Title)
+		argId++
+	}
+	if input.Description != nil {
+		setValues = append(setValues, fmt.Sprintf("description=$%d", argId))
+		args = append(args, *input.Description)
+		argId++
+	}
+	if input.Done != nil {
+		setValues = append(setValues, fmt.Sprintf("done=$%d", argId))
+		args = append(args, *input.Done)
+		argId++
+	}
+
+	setQuery := strings.Join(setValues, ", ")
+	query := fmt.Sprintf("UPDATE %s tl SET %s FROM %s ul WHERE tl.id = ul.item_id AND ul.item_id = $%d AND ul.list_id=$%d", todoItemsTable, setQuery, listsItemsTable, argId, argId+1)
+
+	args = append(args, itemId, listId)
+
+	logrus.Debugf("updateQuery: %s", query)
+	logrus.Debugf("args: %s", args)
+
+	_, err := r.db.Exec(query, args...)
 
 	return err
 }

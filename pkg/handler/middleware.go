@@ -60,3 +60,12 @@ func getUserId(c *gin.Context) (int, error) {
 
 	return idInt, nil
 }
+func authCheck(h *Handler, userId, listId int, c *gin.Context) error {
+	_, err := h.service.TodoList.GetById(userId, listId)
+
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "Permission denied")
+	}
+
+	return err
+}

@@ -33,10 +33,9 @@ func (h *Handler) createItem(c *gin.Context) {
 		return
 	}
 
-	_, err = h.service.TodoList.GetById(userId, inputListId)
+	err = authCheck(h, userId, inputListId, c)
 
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "Permission denied")
 		return
 	}
 
@@ -66,10 +65,9 @@ func (h *Handler) getItems(c *gin.Context) {
 		return
 	}
 
-	_, err = h.service.TodoList.GetById(userId, listId)
+	err = authCheck(h, userId, listId, c)
 
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "Permission denied")
 		return
 	}
 
@@ -104,10 +102,9 @@ func (h *Handler) getItemById(c *gin.Context) {
 		return
 	}
 
-	_, err = h.service.TodoList.GetById(userId, listId)
+	err = authCheck(h, userId, listId, c)
 
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "Permission denied")
 		return
 	}
 
@@ -121,7 +118,45 @@ func (h *Handler) getItemById(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, item)
 }
 func (h *Handler) updateItem(c *gin.Context) {
+	userId, err := getUserId(c)
 
+	if err != nil {
+		return
+	}
+
+	itemId, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "id is not valid")
+		return
+	}
+
+	listId, err := strconv.Atoi(c.Query("list_id"))
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "query param is not valid")
+		return
+	}
+
+	var input gobackend.UpdateItemInput
+	if err := c.BindJSON(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err = authCheck(h, userId, listId, c)
+
+	if err != nil {
+		return
+	}
+
+	if err := h.service.TodoItem.Update(listId, itemId, input); err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, statusResponse{
+		Status: "ok",
+	})
 }
 func (h *Handler) deleteItem(c *gin.Context) {
 	userId, err := getUserId(c)
@@ -142,10 +177,9 @@ func (h *Handler) deleteItem(c *gin.Context) {
 		return
 	}
 
-	_, err = h.service.TodoList.GetById(userId, listId)
+	err = authCheck(h, userId, listId, c)
 
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "Permission denied")
 		return
 	}
 

@@ -22,6 +22,7 @@ type TodoItem interface {
 	GetAll(listId int) ([]gobackend.TodoItem, error)
 	GetById(listId, itemId int) (gobackend.TodoItem, error)
 	Delete(listId, itemId int) error
+	Update(listId, itemId int, input gobackend.UpdateItemInput) error
 }
 type Repository struct {
 	Authorization
